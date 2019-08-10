@@ -1,43 +1,56 @@
-// Symantics is a ball trait
-pub trait Symantics<T> {
-    type Item<T>;
-    fn value(v: i32) -> Self::Item<i32>;
+// https://doc.rust-lang.org/stable/book/ch19-03-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types
+//
+// Symantics is ballin'
+pub trait Symantics {
+    type Item;
+    fn value(v: i32) -> Self::Item;
     fn add(a: Self::Item, b: Self::Item) -> Self::Item;
-    fn lam(a: Self::Item)
+    //    fn lam(a: Self::Item)
 }
 
 // Apa is not a bepa
-struct Apa<T> {
-    _marker: std::marker::PhantomData<T>,
-    inner: String,
-}
+// It is a pretty printer!
+struct Apa(String);
 
-impl<T> Symantics<T> for Apa<T>
-where
-    T: 'static + Copy,
-{
-    type Item = Apa<T>;
-    fn value(v: i32) -> Apa<T> {
-        Apa {
-            inner: format!("{}", v),
-            _marker: std::marker::PhantomData,
-        }
+impl Symantics for Apa {
+    type Item = Apa;
+    fn value(v: i32) -> Apa {
+        Apa(format!("{}", v))
     }
     fn add(a: Self::Item, b: Self::Item) -> Self::Item {
-        Apa {
-            inner: format!("{} + {}", a.inner, b.inner),
-            _marker: std::marker::PhantomData,
+        Apa(format!("{} + {}", a.0, b.0))
+    }
+}
+
+fn view(v: Apa) -> String {
+    v.0
+}
+
+// An evaluator!
+struct Eval {
+    inner: i32,
+}
+
+impl Symantics for Eval {
+    type Item = Eval;
+    fn value(v: i32) -> Eval {
+        Eval { inner: v }
+    }
+    fn add(a: Self::Item, b: Self::Item) -> Self::Item {
+        Eval {
+            inner: a.inner + b.inner,
         }
     }
 }
 
-fn view<T>(v: Apa<T>) -> String {
+fn eval(v: Eval) -> i32 {
     v.inner
 }
 
 fn main() {
+    println!("{}", view(Apa::add(Apa::value(3), Apa::value(4))));
     println!(
-        "{}",
-        view(Apa::<i32>::add(Apa::<i32>::value(3), Apa::<i32>::value(4)))
+        "Evaluated: {}",
+        eval(Eval::add(Eval::value(3), Eval::value(4)))
     )
 }

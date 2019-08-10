@@ -1,5 +1,3 @@
-cargo-features = ["generic"]
-
 [package]
 name = "tagless-final"
 version = "0.1.0"
