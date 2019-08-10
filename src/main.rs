@@ -2,9 +2,8 @@
 //
 // Symantics is ballin'
 pub trait Symantics {
-    type Item;
-    fn value(v: i32) -> Self::Item;
-    fn add(a: Self::Item, b: Self::Item) -> Self::Item;
+    fn value(v: i32) -> Self;
+    fn add(a: Self, b: Self) -> Self;
     //    fn lam(a: Self::Item)
 }
 
@@ -13,11 +12,10 @@ pub trait Symantics {
 struct Apa(String);
 
 impl Symantics for Apa {
-    type Item = Apa;
-    fn value(v: i32) -> Apa {
+    fn value(v: i32) -> Self {
         Apa(format!("{}", v))
     }
-    fn add(a: Self::Item, b: Self::Item) -> Self::Item {
+    fn add(a: Self, b: Self) -> Self {
         Apa(format!("{} + {}", a.0, b.0))
     }
 }
@@ -27,27 +25,23 @@ fn view(v: Apa) -> String {
 }
 
 // An evaluator!
-struct Eval {
-    inner: i32,
-}
+struct Eval (i32);
 
 impl Symantics for Eval {
-    type Item = Eval;
     fn value(v: i32) -> Eval {
-        Eval { inner: v }
+        Eval (v)
     }
-    fn add(a: Self::Item, b: Self::Item) -> Self::Item {
-        Eval {
-            inner: a.inner + b.inner,
-        }
+    fn add(a: Eval, b: Eval) -> Eval {
+        Eval ( a.0 + b.0)
     }
 }
 
 fn eval(v: Eval) -> i32 {
-    v.inner
+    v.0
 }
 
 fn main() {
+    println!("{}", view(Apa::value(5)));
     println!("{}", view(Apa::add(Apa::value(3), Apa::value(4))));
     println!(
         "Evaluated: {}",
